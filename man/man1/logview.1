@@ -1,0 +1,70 @@
+.\" Manpage for logview.
+.\" Contact thorstenhuhn@me.com to correct errors or typos.
+.TH man 8 "06 Mar 2018" "0.1.0" "logview man page"
+.SH NAME
+logview \- refer current and archived log files using shortcuts
+.SH SYNOPSIS
+logview [-f] [-i \fIindex\fR] [-o \fIoffset\fR] \fIshortcut\fR
+.br
+logview -a [-o 0] \fIshortcut\fR
+.SH DESCRIPTION
+\fBlogview\fR allows to refer log files by using a shortcut removing the need to type or even know the file location, even for archived files.
+.SH OPTIONS
+\fB-h, --help\fR
+    Print a short help page describing the options available in logview and exit.
+
+\fB-a, --all\fR
+    Print all log files in the directory identified by the shortcut. This might help identifying available indexes in log groups or rotated log file versions. If used in combination with the \fIoffset\fR option -o, --offset the archive directory is listed instead.
+
+\fB-f, --follow\fR
+    Open and follow the log file to watch incoming messages.
+
+\fB-i, --index\fR \fIindex\fR
+    Substitute {\fIindex\fR} placeholder in log file spec to retrieve log files rotated by number or to pickup a file in a numbered log group.
+
+\fB-l, --list\fR
+    Print a list of available shortcuts. This is mainly used to setup bash completition.
+
+\fB-o, --offset\fR \fIdays\fR
+    Retrieve archived log file for \fday\fR days in the past.
+
+.SH CONFIGURATION FILE
+\fBlogview\fR reads everything about the log files it should open from a configuration file \fI.logview.yml\fR in the $HOME directory.
+A simple configuration file looks like this:
+
+---
+
+messages:
+  log: /var/log/messages
+  archive: /var/log/messages-%Y%m%d
+  archive_offset: 1
+
+cio:
+  log: /var/log/cloud-init-output.log
+
+system:
+  log: /var/log/system.log
+  archive: /var/log/system.log.{index}.gz
+
+In this example 'messages' defines the shortcut to be used when accessing the log file given by the 'log' key. If the \fIoffset\fR option -o, --offset is used the 'archive' key is picked up instead. strftime-like specifiers like %Y, %m and %d are replaced by the current date unless shifted using the offset in 'archive_offset'. This is especially useful if the date part of the log file name does not match the date of the content in the log file itself.
+
+.SH NOTES
+If \fBlogview\fR was installed using pip/setuptools as privileged user, you may find it useful to setup bash completion by sourcing `/etc/bash_completion.d/logview` in your `.bashrc` file.
+
+.SH EXAMPLES
+To view the messages log, invoke logview as:
+    \fBlogview\fR \fImessages\fR
+
+If logview should wait for incoming messages, use:
+    \fBlogview -f\fR \fImessages\fR
+
+Yesterdays log can be opened using:
+    \fBlogview -o 1\fR \fImessages\fR
+
+List all log files available in the directory containing the messages log:
+    \fBlogview -a\fR \fImessages\fR
+.SH BUGS
+No known bugs.
+.SH AUTHOR
+Thorsten Huhn
+

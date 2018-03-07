@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+import argparse
+import datetime
+#import mimetypes
+import os
+import signal
+import subprocess
+import sys
+import yaml
+from difflib import get_close_matches
+from time import strftime
+
+__version__ = '0.1.0'
+
+cfg = os.path.expanduser('~/.logview.yml')
+
+
+def signal_handler(signal, frame):
+    pass
+
+
+def main():
+
+    # read configuration file
+    try:
+        config_yml = open(cfg, 'r')
+        config = yaml.load(config_yml)
+    except:
+        print("Unable to read config from '{}'! Aborting.".format(cfg))
+	return 1
+
+    epilog = "valid log shortcuts:\n"
+    for key in sorted(config.keys()):
+        epilog += "  - {} ({})\n".format(key, config.get(key).get('log'))
+
+    parser = argparse.ArgumentParser(
+            prog='logview',
+            description='logview - refer current and archived log files using shortcuts.',
+            epilog=epilog,
+            formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("-a", "--all", action="store_true", help="print all log files in the directory identified by the shortcut")
+    parser.add_argument("-f", "--follow", action="store_true", help="open and follow the log file to watch incoming messages")
+    parser.add_argument("-i", "--index", type=int, default=1, help="index for logfile groups or numbered rotation (default: 1)")
+    parser.add_argument("-l", "--list", action="store_true", help="print a list of available shortcuts suitable for parsing")
+    parser.add_argument("-o", "--offset", type=int, help="open archived log file for OFFSET days in the past")
+    parser.add_argument("shortcut", nargs='?', help="name of log shortcut")
+
+    args = parser.parse_args()
+
+    # option -l|--list: print a list of available shortcuts suitable for parsing
+    if args.list:
+        for key in sorted(config.keys()):
+            print(key)
+        return 0
+
+    # missing shortcut: print help/usage
+    if args.shortcut is None:
+        parser.print_help()
+        return 1
+
+    # lookup configuration details for specified log shortcut
+    shortcut_config = config.get(args.shortcut)
+    if shortcut_config is None:
+        print("logview: '{}' is not a logview shortcut. See 'logview --list'.".format(args.shortcut))
+        alternatives = get_close_matches(args.shortcut, config.keys())
+        if alternatives:
+            print()
+            print('Did you mean this?')
+            for alternative in alternatives:
+                print('\t{}'.format(alternative))
+        return 1
+
+    # lookup full location for archived or current logfile
+    if args.offset:
+        # use archived file version (supports date substitution)
+        filename = shortcut_config.get('archive', shortcut_config.get('log'))
+        now = datetime.datetime.now()
+        refdate = now - datetime.timedelta(days=args.offset - shortcut_config.get('archive_offset', 0))
+        filename = refdate.strftime(filename)
+    else:
+        # pick the general log entry
+        filename = shortcut_config.get('log')
+
+    # resolve placeholders
+    filename = filename.format(index=args.index)
+
+    # option -a|--all: print all files in the logfile location
+    if args.all:
+        path = os.path.dirname(filename)
+        subprocess.call(['ls', '-lrt', path])
+        return 0
+
+    # detect mime type
+    # disabled: rely on $LESSOPEN/lesspipe.sh for all filetypes 
+    #mime_type = mimetypes.MimeTypes().guess_type(filename)
+
+    # compose less commandline
+    less_cmd = [ 'less', '-I' ] # ignore case when searching
+    if args.follow:
+        less_cmd.append('+F')   # wait for incoming data
+    less_cmd.append(filename)
+
+    # catch CTRL-c when running less subprocess
+    # to prevent terminal reset when using CTRL-C in follow mode
+    signal.signal(signal.SIGINT, signal_handler)
+    process = subprocess.call(less_cmd)
+    try:
+        process.kill()
+    except:
+        pass
+
+    return 0
+
+
+if __name__ == '__main__':
+    rc = main()
+    exit(rc)
+

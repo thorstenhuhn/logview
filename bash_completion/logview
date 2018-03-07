@@ -1,0 +1,17 @@
+_logview()
+{
+  local cur
+
+  COMPREPLY=()
+  cur=${COMP_WORDS[COMP_CWORD]}
+
+  #options='-a --all -f --follow -h --help -i --index -l --list -o --offset'
+  shortcuts=`logview -l 2>/dev/null`
+
+  COMPREPLY=( $( compgen -W "$options $shortcuts" -- $cur ) )
+  return 0
+
+}
+
+complete -F _logview logview
+
