@@ -109,7 +109,8 @@ def main():
     # option -a|--all: print all files in the logfile location
     if args.all:
         path = os.path.dirname(filename)
-        subprocess.call(['ls', '-lrt', path])
+        subprocess.call(['ls', '-l', path])
+        print('Logfile pattern: {}'.format(filename))
         return 0
 
     # detect mime type
