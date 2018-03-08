@@ -16,7 +16,7 @@ config = {
     'url': '',
     'download_url': '',
     'author_email': 'thorstenhuhn@users.noreply.github.com',
-    'version': '0.1.1',
+    'version': '0.1.2',
     'install_requires': [
         'pyyaml',
     ],
