@@ -28,8 +28,17 @@ logview -a [-o 0] \fIshortcut\fR
 \fB-o, --offset\fR \fIdays\fR
     Retrieve archived log file for \fday\fR days in the past.
 
-.SH CONFIGURATION FILE
-\fBlogview\fR reads everything about the log files it should open from a configuration file \fI.logview.yml\fR in the $HOME directory.
+.SH CONFIGURATION FILES
+\fBlogview\fR reads everything about the log files it should open from the following locations:
+
+- /etc/logview.yml
+.br
+- /etc/logview.d/*.yml
+.br
+- $LOGVIEW_CONF_D/*.yml
+.br
+- ~/.logview.yml
+
 A simple configuration file looks like this:
 
 ---

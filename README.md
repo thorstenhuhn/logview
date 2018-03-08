@@ -29,8 +29,15 @@ Print a list of available shortcuts. This is mainly used to setup bash completit
 **-o, \-\-offset days**
 Retrieve archived log file for `day` days in the past.
 
-CONFIGURATION FILE  
-**logview** reads everything about the log files it should open from a configuration file `$HOME/.logview.yml`. A simple configuration file looks like this:
+CONFIGURATION FILES 
+**logview** reads everything about the log files it should open from the following locations:
+
+- /etc/logview.yml
+- /etc/logview.d/*.yml
+- $LOGVIEW_CONF_D/*.yml
+- ~/.logview.yml
+
+A simple configuration file looks like this:
 
 ```yaml
 ---

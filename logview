@@ -21,15 +21,34 @@ def signal_handler(signal, frame):
     pass
 
 
+def get_files_in_folder(path, suffix):
+    try:
+        return [os.path.join(path, f) for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and f.endswith(suffix)]
+    except:
+        # ignore non-existent directories
+        return []
+
+
 def main():
 
-    # read configuration file
-    try:
-        config_yml = open(cfg, 'r')
-        config = yaml.load(config_yml)
-    except:
-        print("Unable to read config from '{}'! Aborting.".format(cfg))
-	return 1
+    # search various locations for config files
+    config_files = [ '/etc/logview.yml' ]
+    config_files.extend(get_files_in_folder('/etc/logview.d', '.yml'))
+    user_conf_d = os.environ.get('LOGVIEW_CONF_D', None)
+    if user_conf_d:
+        config_files.extend(get_files_in_folder(user_conf_d, '.yml'))
+    config_files.append(os.path.expanduser('~/.logview.yml'))
+
+    # read log file specs from config files
+    config = {}
+    for filename in config_files:
+        try:
+            config_file = open(filename, 'r')
+            document = yaml.load(config_file)
+            config.update(document)
+        except:
+            # ignore non-existing files
+            pass
 
     epilog = "valid log shortcuts:\n"
     for key in sorted(config.keys()):
