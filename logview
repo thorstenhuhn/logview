@@ -119,6 +119,9 @@ def main():
 
     # compose less commandline
     less_cmd = [ 'less', '-I' ] # ignore case when searching
+    less_options = shortcut_config.get('options', None)
+    if less_options:
+        less_cmd.extend(less_options.split(' '))
     if args.follow:
         less_cmd.append('+F')   # wait for incoming data
     less_cmd.append(filename)
