@@ -1,6 +1,6 @@
 .\" Manpage for logview.
 .\" Contact thorstenhuhn@me.com to correct errors or typos.
-.TH man 8 "08 Mar 2018" "0.1.2" "logview man page"
+.TH man 8 "08 Mar 2018" "0.1.3" "logview man page"
 .SH NAME
 logview \- refer current and archived log files using shortcuts
 .SH SYNOPSIS
@@ -56,6 +56,7 @@ system:
   archive: /var/log/system.log.{index}.gz
 
 In this example 'messages' defines the shortcut to be used when accessing the log file given by the 'log' key. If the \fIoffset\fR option -o, --offset is used the 'archive' key is picked up instead. strftime-like specifiers like %Y, %m and %d are replaced by the current date unless shifted using the offset in 'archive_offset'. This is especially useful if the date part of the log file name does not match the date of the content in the log file itself.
+You may use the 'options' key to add common less options like '+G' to jump to the end of the file after opening it.
 
 .SH NOTES
 If \fBlogview\fR was installed using pip/setuptools as privileged user, you may find it useful to setup bash completion by sourcing `/etc/bash_completion.d/logview` in your `.bashrc` file.

@@ -49,6 +49,7 @@ messages:
 
 cio:  
   log: /var/log/cloud-init-output.log
+	options: +G
 
 system:
   log: /var/log/system.log
@@ -56,6 +57,7 @@ system:
 ```
 
 In this example `messages` defines the shortcut to be used when accessing the log file given by the `log` key. If the offset option `-o, --offset` is used the `archive` key is picked up instead. strftime-like specifiers like `%Y`, `%m` and `%d` are replaced by the current date unless shifted using the offset in `archive_offset`. This is especially useful if the date part of the log file name does not match the date of the content in the log file itself.
+You may use the `options` key to add common less options like `+G` to jump to the end of the file after opening it.
 
 NOTES
 If **logview** was installed using pip/setuptools as privileged user, you may find it useful to setup bash completion by sourcing `/etc/bash_completion.d/logview` in your `.bashrc` file.

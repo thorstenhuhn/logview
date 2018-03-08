@@ -1,3 +1,10 @@
+# Release 0.1.3
+
+## Improvements
+
+- Support configuring additional less options
+
+
 # Release 0.1.2
 
 ## Improvements
